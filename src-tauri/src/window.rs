@@ -69,7 +69,8 @@ pub fn open_settings(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> 
 
 pub fn hide_reminder(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
     if let Some(window) = app.get_webview_window(REMINDER_WINDOW_LABEL) {
-        let _ = window.hide();
+        // 彻底关闭窗口以释放内存，而不是仅仅隐藏
+        let _ = window.close();
     }
     Ok(())
 }

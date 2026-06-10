@@ -48,12 +48,12 @@ class RippleEngine {
 
         this.container.appendChild(ripple);
 
-        // 动画结束后移除
+        // 动画结束后移除，释放内存
         setTimeout(() => {
             if (ripple.parentNode) {
                 ripple.parentNode.removeChild(ripple);
             }
-        }, duration);
+        }, duration + 100);
     }
 }
 
@@ -96,6 +96,5 @@ window.startReminder = function (type) {
                 window.__TAURI_INTERNALS__.invoke('hide_reminder_window');
             }
         } catch (e) { }
-        document.body.style.opacity = '0';
     }, duration);
 };

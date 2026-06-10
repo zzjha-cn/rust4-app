@@ -34,33 +34,29 @@ html {
     position: absolute;
     top: 50%;
     left: 50%;
-    /* 将尺寸从 200vmax 增加到 300vmax，确保波纹能完全扩散出屏幕边缘 */
-    width: 300vmax;
-    height: 300vmax;
+    /* 减小尺寸，避免过大的渲染面积 */
+    width: 150vmax;
+    height: 150vmax;
     border-radius: 50%;
     transform: translate(-50%, -50%) scale(0);
 
-    /* 增强玻璃折射感：更强的模糊和对比度，模拟厚玻璃 */
-    backdrop-filter: blur(16px) brightness(1.2) contrast(1.15);
-    -webkit-backdrop-filter: blur(16px) brightness(1.2) contrast(1.15);
+    /* 降低模糊半径，这是最吃内存的属性 */
+    backdrop-filter: blur(4px) brightness(1.1) contrast(1.05);
+    -webkit-backdrop-filter: blur(4px) brightness(1.1) contrast(1.05);
 
-    /* 调整遮罩：让波纹极其宽大，几乎填满整个圆，只在最边缘淡出 */
-    -webkit-mask-image: radial-gradient(circle, transparent 0%, rgba(0, 0, 0, 0.1) 2%, black 50%, rgba(0, 0, 0, 0.1) 98%, transparent 100%);
-    mask-image: radial-gradient(circle, transparent 0%, rgba(0, 0, 0, 0.1) 2%, black 50%, rgba(0, 0, 0, 0.1) 98%, transparent 100%);
+    /* 简化遮罩，减少渲染层级 */
+    -webkit-mask-image: radial-gradient(circle, transparent 10%, black 50%, transparent 90%);
+    mask-image: radial-gradient(circle, transparent 10%, black 50%, transparent 90%);
 
-    /* 增强边缘高光和阴影：同时加入亮色和暗色阴影，确保在纯白背景和纯黑背景下都非常显眼 */
+    /* 简化阴影，减少重绘开销 */
     box-shadow:
-        inset 0 0 120px rgba(255, 255, 255, 0.6),
-        /* 内圈高光，更强 */
-        inset 0 0 60px rgba(0, 0, 0, 0.3),
-        /* 内圈暗部，更强（在白底上显眼） */
-        0 0 80px rgba(0, 0, 0, 0.3),
-        /* 外圈暗部，更强（在白底上显眼） */
-        0 0 40px rgba(255, 255, 255, 0.5);
-    /* 外圈高光，更强 */
+        inset 0 0 40px rgba(255, 255, 255, 0.4),
+        0 0 20px rgba(0, 0, 0, 0.2);
 
-    /* 添加微弱的灰度边框，强化水波的物理轮廓 */
-    border: 3px solid rgba(100, 100, 100, 0.3);
+    border: 1px solid rgba(150, 150, 150, 0.2);
+
+    /* 开启硬件加速 */
+    will-change: transform, opacity;
 
     animation: ripple-expand linear forwards;
 }
