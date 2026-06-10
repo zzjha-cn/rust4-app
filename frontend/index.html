@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blink Reminder</title>
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+    <div id="ripple-container"></div>
+    <div id="message"></div>
+    <script src="scripts/ripple.js"></script>
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const reminderType = params.get('type') || 'blink';
+
+        window.startReminder?.(reminderType);
+    </script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body { background: transparent; margin: 0; overflow: hidden; }
+  .ripple {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 400px; height: 400px;
+    margin-top: -200px; margin-left: -200px;
+    border-radius: 50%;
+    backdrop-filter: url(#displacementFilter);
+    -webkit-backdrop-filter: url(#displacementFilter);
+    border: 2px solid rgba(255,255,255,0.5);
+  }
+</style>
+</head>
+<body>
+  <svg width="0" height="0">
+    <filter id="displacementFilter">
+      <feTurbulence type="turbulence" baseFrequency="0.05" numOctaves="2" result="turbulence"/>
+      <feDisplacementMap in2="turbulence" in="SourceGraphic" scale="50" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </svg>
+  <div class="ripple"></div>
+</body>
+</html>

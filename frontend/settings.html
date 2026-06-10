@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blink Reminder 设置</title>
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body class="settings-page">
+    <div class="settings-container">
+        <h1>⚙ Blink Reminder 设置</h1>
+
+        <div class="form-group">
+            <label for="blink-interval">眨眼提醒间隔（秒）</label>
+            <input type="number" id="blink-interval" min="5" max="120" value="20">
+        </div>
+
+        <div class="form-group">
+            <label for="rest-interval">休息提醒间隔（分钟）</label>
+            <input type="number" id="rest-interval" min="5" max="120" value="30">
+        </div>
+
+        <div class="form-group">
+            <label for="ripple-color">水波纹颜色</label>
+            <input type="color" id="ripple-color" value="#4FC3F7">
+        </div>
+
+        <div class="form-group">
+            <label for="blink-duration">眨眼动画时长（秒）</label>
+            <input type="number" id="blink-duration" min="0.5" max="5" step="0.1" value="1.5">
+        </div>
+
+        <div class="form-group">
+            <label for="rest-duration">休息动画时长（秒）</label>
+            <input type="number" id="rest-duration" min="1" max="10" step="0.1" value="5">
+        </div>
+
+        <div class="form-group checkbox-group">
+            <label>
+                <input type="checkbox" id="enable-work-hours" checked>
+                启用工作时间段限制
+            </label>
+        </div>
+
+        <div class="form-group" id="work-hours-group">
+            <label>工作时间段</label>
+            <div class="inline-inputs">
+                <input type="number" id="work-start" min="0" max="23" value="9"> 时
+                <span>至</span>
+                <input type="number" id="work-end" min="0" max="23" value="18"> 时
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button id="save-btn">保存设置</button>
+            <button id="cancel-btn" class="secondary">取消</button>
+        </div>
+
+        <div id="save-status"></div>
+    </div>
+
+    <script src="scripts/settings.js"></script>
+</body>
+</html>

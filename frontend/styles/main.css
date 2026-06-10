@@ -1,0 +1,229 @@
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    background: transparent !important;
+}
+
+html {
+    background: transparent !important;
+}
+
+/* Reminder page */
+#ripple-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: block;
+    background: transparent;
+    pointer-events: none;
+}
+
+.glass-ripple {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    /* 将尺寸从 200vmax 增加到 300vmax，确保波纹能完全扩散出屏幕边缘 */
+    width: 300vmax;
+    height: 300vmax;
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0);
+
+    /* 增强玻璃折射感：更强的模糊和对比度，模拟厚玻璃 */
+    backdrop-filter: blur(12px) brightness(1.15) contrast(1.1);
+    -webkit-backdrop-filter: blur(12px) brightness(1.15) contrast(1.1);
+
+    /* 调整遮罩：让波纹极其宽大，几乎填满整个圆，只在最边缘淡出 */
+    -webkit-mask-image: radial-gradient(circle, transparent 0%, rgba(0, 0, 0, 0.3) 5%, black 50%, rgba(0, 0, 0, 0.3) 95%, transparent 100%);
+    mask-image: radial-gradient(circle, transparent 0%, rgba(0, 0, 0, 0.3) 5%, black 50%, rgba(0, 0, 0, 0.3) 95%, transparent 100%);
+
+    /* 增强边缘高光和阴影：同时加入亮色和暗色阴影，确保在纯白背景和纯黑背景下都非常显眼 */
+    box-shadow:
+        inset 0 0 80px rgba(255, 255, 255, 0.5),
+        /* 内圈高光 */
+        inset 0 0 40px rgba(0, 0, 0, 0.15),
+        /* 内圈暗部（在白底上显眼） */
+        0 0 60px rgba(0, 0, 0, 0.15),
+        /* 外圈暗部（在白底上显眼） */
+        0 0 20px rgba(255, 255, 255, 0.4);
+    /* 外圈高光 */
+
+    /* 添加微弱的灰度边框，强化水波的物理轮廓 */
+    border: 2px solid rgba(150, 150, 150, 0.2);
+
+    animation: ripple-expand linear forwards;
+}
+
+@keyframes ripple-expand {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 1;
+    }
+
+    80% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0;
+    }
+}
+
+#message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 28px;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+    pointer-events: none;
+    z-index: 10;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+#message.show {
+    opacity: 1;
+}
+
+/* Settings page */
+body.settings-page {
+    overflow: auto;
+    background: #f5f5f7;
+}
+
+.settings-container {
+    max-width: 420px;
+    margin: 0 auto;
+    padding: 24px 20px;
+}
+
+.settings-container h1 {
+    font-size: 20px;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 28px;
+    color: #1d1d1f;
+}
+
+.form-group {
+    margin-bottom: 18px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: #555;
+    margin-bottom: 6px;
+}
+
+.form-group input[type="number"],
+.form-group input[type="color"] {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #d2d2d7;
+    border-radius: 8px;
+    font-size: 14px;
+    background: #fff;
+    transition: border-color 0.2s;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #4FC3F7;
+    box-shadow: 0 0 0 3px rgba(79, 195, 247, 0.2);
+}
+
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #4FC3F7;
+}
+
+.inline-inputs {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.inline-inputs input {
+    width: 70px !important;
+    text-align: center;
+}
+
+.inline-inputs span {
+    color: #888;
+    font-size: 14px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 28px;
+}
+
+.form-actions button {
+    flex: 1;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+#save-btn {
+    background: #4FC3F7;
+    color: #fff;
+}
+
+#save-btn:hover {
+    background: #29B6F6;
+}
+
+#cancel-btn {
+    background: #e8e8ed;
+    color: #555;
+}
+
+#cancel-btn:hover {
+    background: #d2d2d7;
+}
+
+#save-status {
+    margin-top: 12px;
+    text-align: center;
+    font-size: 13px;
+    color: #34c759;
+    min-height: 20px;
+}
