@@ -15,17 +15,17 @@ class RippleEngine {
 
     startBlink() {
         this._run({
-            count: 2,
+            count: 3,
             delay: 1200,
-            duration: 5200,
+            duration: 4000,
         });
     }
 
     startRest() {
         this._run({
-            count: 3,
+            count: 4,
             delay: 1200,
-            duration: 6500,
+            duration: 5000,
         });
     }
 
@@ -80,12 +80,12 @@ window.startReminder = function (type) {
         engine.startRest();
         messageEl.textContent = '该休息啦 ~';
         setTimeout(() => messageEl.classList.add('show'), 300);
-        duration = 10400;
+        duration = 11600;
     } else {
         engine.startBlink();
         messageEl.textContent = '眨眨眼 ~';
         setTimeout(() => messageEl.classList.add('show'), 200);
-        duration = 7600;
+        duration = 8800;
     }
 
     // 每次播放动画时，重新设置自动隐藏的定时器
