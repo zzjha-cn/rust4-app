@@ -33,6 +33,16 @@ impl RippleRenderer for WinRenderer {
         });
     }
 
+    fn show_rest(&mut self, duration_sec: f64, proxy: EventLoopProxy<AppEvent>) {
+        // TODO: Implement Windows rest animation
+        println!("Windows show_rest called");
+        
+        tokio::spawn(async move {
+            tokio::time::sleep(std::time::Duration::from_secs_f64(duration_sec)).await;
+            let _ = proxy.send_event(crate::AppEvent::Hide);
+        });
+    }
+
     fn hide_ripple(&mut self) {
         // TODO: Hide Windows window
         println!("Windows hide_ripple called");

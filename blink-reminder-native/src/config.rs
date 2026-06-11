@@ -21,8 +21,8 @@ impl Default for AppConfig {
     fn default() -> Self {
         Self {
             blink_interval_sec: 40,
-            rest_interval_min: 30,
-            blink_animation_duration_sec: 1.5,
+            rest_interval_min: 40,
+            blink_animation_duration_sec: 1.8,
             rest_animation_duration_sec: 5.0,
             ripple_color: "#4FC3F7".to_string(),
             work_start_hour: 9,

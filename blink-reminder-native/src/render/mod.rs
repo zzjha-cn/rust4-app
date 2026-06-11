@@ -4,6 +4,7 @@ use crate::AppEvent;
 pub trait RippleRenderer {
     fn setup(&mut self);
     fn show_ripple(&mut self, duration_sec: f64, proxy: EventLoopProxy<AppEvent>, is_replay: bool);
+    fn show_rest(&mut self, duration_sec: f64, proxy: EventLoopProxy<AppEvent>);
     fn hide_ripple(&mut self);
 }
 

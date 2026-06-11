@@ -107,8 +107,9 @@ fn main() {
                 renderer.show_ripple(duration, proxy.clone(), true);
             }
             Event::UserEvent(AppEvent::Rest) => {
-                println!("Rest on main thread!");
-                // renderer.show_ripple(5.0, proxy.clone(), false);
+                // println!("Rest on main thread!");
+                let duration = config.read().unwrap().rest_animation_duration_sec;
+                renderer.show_rest(duration, proxy.clone());
             }
             Event::UserEvent(AppEvent::Hide) => {
                 renderer.hide_ripple();

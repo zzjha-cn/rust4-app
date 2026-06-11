@@ -154,6 +154,79 @@ impl RippleRenderer for MacRenderer {
         }
     }
 
+    fn show_rest(&mut self, duration_sec: f64, proxy: EventLoopProxy<AppEvent>) {
+        let window = self.window.as_ref().expect("Renderer not setup");
+        unsafe {
+            // Capture the screen image
+            let display = CGDisplay::main();
+            let cg_image = display.image();
+
+            if let Some(view) = window.contentView() {
+                if let Some(layer) = view.layer() {
+                    // Set the captured screen as the layer's contents
+                    if let Some(image) = cg_image {
+                        let image_ptr = image.as_ptr() as *mut AnyObject;
+                        let _: () = msg_send![&layer, setContents: image_ptr];
+                    }
+
+                    // Create a blur filter
+                    let blur_filter_name = NSString::from_str("CIGaussianBlur");
+                    let blur_filter: Option<Id<CIFilter>> =
+                        msg_send_id![CIFilter::class(), filterWithName: &*blur_filter_name];
+
+                    // Create a darken filter (using CIColorControls)
+                    let darken_filter_name = NSString::from_str("CIColorControls");
+                    let darken_filter: Option<Id<CIFilter>> =
+                        msg_send_id![CIFilter::class(), filterWithName: &*darken_filter_name];
+
+                    if let (Some(blur), Some(darken)) = (blur_filter, darken_filter) {
+                        // Set up blur
+                        let radius_key = NSString::from_str("inputRadius");
+                        let blur_radius = NSNumber::numberWithDouble(20.0);
+                        let _: () = msg_send![&blur, setValue: &*blur_radius, forKey: &*radius_key];
+
+                        // Set up darken (brightness < 0)
+                        let brightness_key = NSString::from_str("inputBrightness");
+                        let brightness_val = NSNumber::numberWithDouble(-0.3);
+                        let _: () = msg_send![&darken, setValue: &*brightness_val, forKey: &*brightness_key];
+
+                        // Apply filters
+                        let filters = NSArray::from_slice(&[&*blur, &*darken]);
+                        let _: () = msg_send![&layer, setFilters: &*filters];
+
+                        // Animate opacity to fade in
+                        CATransaction::begin();
+                        CATransaction::setAnimationDuration(1.0); // 1 second fade in
+
+                        let anim: Id<CABasicAnimation> = msg_send_id![objc2::class!(CABasicAnimation), animationWithKeyPath: &*NSString::from_str("opacity")];
+                        let from_val = NSNumber::numberWithDouble(0.0);
+                        let to_val = NSNumber::numberWithDouble(1.0);
+
+                        let _: () = msg_send![&anim, setFromValue: &*from_val];
+                        let _: () = msg_send![&anim, setToValue: &*to_val];
+
+                        let timing_func: Id<CAMediaTimingFunction> = msg_send_id![objc2::class!(CAMediaTimingFunction), functionWithName: &*NSString::from_str("easeInEaseOut")];
+                        let _: () = msg_send![&anim, setTimingFunction: &*timing_func];
+
+                        layer.addAnimation_forKey(&anim, Some(&*NSString::from_str("fade_in")));
+                        
+                        // Set final opacity
+                        let _: () = msg_send![&layer, setOpacity: 1.0f32];
+
+                        CATransaction::commit();
+                    }
+                }
+            }
+
+            window.orderFrontRegardless();
+
+            tokio::spawn(async move {
+                tokio::time::sleep(std::time::Duration::from_secs_f64(duration_sec)).await;
+                let _ = proxy.send_event(crate::AppEvent::Hide);
+            });
+        }
+    }
+
     fn hide_ripple(&mut self) {
         let window = self.window.as_ref().expect("Renderer not setup");
         unsafe {
