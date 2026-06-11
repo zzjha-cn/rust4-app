@@ -23,9 +23,14 @@ pub fn setup_timer(config: Arc<RwLock<AppConfig>>, state: Arc<TimerState>, on_bl
 
             elapsed_secs += 1;
             if elapsed_secs >= cfg.blink_interval_sec {
-                elapsed_secs = 0;
-                if is_within_work_hours(&cfg) {
-                    on_blink();
+                if get_idle_time_secs() >= 1.0 {
+                    elapsed_secs = 0;
+                    if is_within_work_hours(&cfg) {
+                        on_blink();
+                    }
+                } else {
+                    // User is active, delay the blink by not resetting elapsed_secs
+                    // It will check again in the next second
                 }
             }
         }
@@ -45,9 +50,13 @@ pub fn setup_timer(config: Arc<RwLock<AppConfig>>, state: Arc<TimerState>, on_bl
 
             elapsed_secs += 1;
             if elapsed_secs >= cfg.rest_interval_min * 60 {
-                elapsed_secs = 0;
-                if is_within_work_hours(&cfg) {
-                    on_rest();
+                if get_idle_time_secs() >= 1.0 {
+                    elapsed_secs = 0;
+                    if is_within_work_hours(&cfg) {
+                        on_rest();
+                    }
+                } else {
+                    // User is active, delay the rest by not resetting elapsed_secs
                 }
             }
         }
@@ -88,5 +97,25 @@ fn local_offset_seconds() -> i64 {
     #[cfg(not(target_os = "macos"))]
     {
         0i64
+    }
+}
+
+fn get_idle_time_secs() -> f64 {
+    #[cfg(target_os = "macos")]
+    {
+        #[link(name = "CoreGraphics", kind = "framework")]
+        extern "C" {
+            fn CGEventSourceSecondsSinceLastEventType(sourceState: u32, eventType: u32) -> f64;
+        }
+        unsafe {
+            // kCGEventSourceStateHIDSystemState = 1
+            // kCGAnyInputEventType = 0xFFFFFFFF
+            CGEventSourceSecondsSinceLastEventType(1, 0xFFFFFFFF)
+        }
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        // TODO: Implement for Windows using GetLastInputInfo
+        1.0
     }
 }
