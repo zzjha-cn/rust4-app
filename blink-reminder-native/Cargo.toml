@@ -1,0 +1,24 @@
+[package]
+name = "blink-reminder-native"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1.0", features = ["full"] }
+tray-icon = "0.14"
+tao = "0.28"
+muda = "0.13"
+objc2 = "0.5"
+objc2-app-kit = { version = "0.2.2", features = ["NSApplication", "NSWindow", "NSView", "NSColor", "NSScreen", "NSGraphicsContext", "NSGraphics", "all", "NSVisualEffectView"] }
+objc2-foundation = { version = "0.2", features = [
+    "NSString",
+    "NSGeometry",
+    "NSArray",
+] }
+core-graphics = "0.23"
+core-foundation = "0.9"
+objc2-quartz-core = { version = "0.2.2", features = ["CALayer", "CATransaction", "CAAnimation", "CAMediaTimingFunction", "all"] }
+objc2-core-image = { version = "0.2.2", features = ["CIFilter", "all"] }
+foreign-types-shared = "0.3.1"
