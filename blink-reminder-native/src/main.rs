@@ -1,6 +1,5 @@
 mod config;
-#[cfg(target_os = "macos")]
-mod mac_window;
+mod render;
 mod timer;
 
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -46,73 +45,62 @@ fn main() {
         .build()
         .unwrap();
 
-    #[cfg(target_os = "macos")]
-    {
-        use objc2_app_kit::{NSApplication, NSApplicationActivationPolicy};
-        use objc2_foundation::MainThreadMarker;
+    // Initialize Renderer
+    let mut renderer = render::create_renderer();
+    renderer.setup();
 
-        let mtm = unsafe { MainThreadMarker::new_unchecked() };
+    let proxy_blink = proxy.clone();
+    let proxy_rest = proxy.clone();
+    timer::setup_timer(
+        config.clone(),
+        timer_state.clone(),
+        move || {
+            let _ = proxy_blink.send_event(AppEvent::Blink);
+        },
+        move || {
+            let _ = proxy_rest.send_event(AppEvent::Rest);
+        },
+    );
 
-        unsafe {
-            let app = NSApplication::sharedApplication(mtm);
-            app.setActivationPolicy(NSApplicationActivationPolicy::Accessory);
+    let menu_channel = MenuEvent::receiver();
+
+    event_loop.run(move |event, _, control_flow| {
+        *control_flow = ControlFlow::Wait;
+
+        // Handle tray menu events
+        if let Ok(menu_event) = menu_channel.try_recv() {
+            if menu_event.id == quit_item.id() {
+                *control_flow = ControlFlow::Exit;
+            } else if menu_event.id == toggle_blink_item.id() {
+                let mut cfg = config.write().unwrap();
+                cfg.enable_blink = !cfg.enable_blink;
+                let _ = cfg.save();
+                println!("Blink enabled: {}", cfg.enable_blink);
+            } else if menu_event.id == toggle_item.id() {
+                let current = timer_state.is_paused.load(Ordering::Relaxed);
+                timer_state.is_paused.store(!current, Ordering::Relaxed);
+            }
         }
 
-        let window = mac_window::create_ripple_window(mtm);
-
-        let proxy_blink = proxy.clone();
-        let proxy_rest = proxy.clone();
-        timer::setup_timer(
-            config.clone(),
-            timer_state.clone(),
-            move || {
-                let _ = proxy_blink.send_event(AppEvent::Blink);
-            },
-            move || {
-                let _ = proxy_rest.send_event(AppEvent::Rest);
-            },
-        );
-
-        let menu_channel = MenuEvent::receiver();
-
-        event_loop.run(move |event, _, control_flow| {
-            *control_flow = ControlFlow::Wait;
-
-            // Handle tray menu events
-            if let Ok(menu_event) = menu_channel.try_recv() {
-                if menu_event.id == quit_item.id() {
-                    *control_flow = ControlFlow::Exit;
-                } else if menu_event.id == toggle_blink_item.id() {
-                    let mut cfg = config.write().unwrap();
-                    cfg.enable_blink = !cfg.enable_blink;
-                    let _ = cfg.save();
-                    println!("Blink enabled: {}", cfg.enable_blink);
-                } else if menu_event.id == toggle_item.id() {
-                    let current = timer_state.is_paused.load(Ordering::Relaxed);
-                    timer_state.is_paused.store(!current, Ordering::Relaxed);
-                }
+        match event {
+            Event::UserEvent(AppEvent::Blink) => {
+                println!("Blink on main thread!");
+                let duration = config.read().unwrap().blink_animation_duration_sec;
+                renderer.show_ripple(duration, proxy.clone(), false);
             }
-
-            match event {
-                Event::UserEvent(AppEvent::Blink) => {
-                    println!("Blink on main thread!");
-                    let duration = config.read().unwrap().blink_animation_duration_sec;
-                    mac_window::show_ripple(&window, duration, proxy.clone(), false);
-                }
-                Event::UserEvent(AppEvent::BlinkReplay) => {
-                    println!("Blink replay on main thread!");
-                    let duration = config.read().unwrap().blink_animation_duration_sec;
-                    mac_window::show_ripple(&window, duration, proxy.clone(), true);
-                }
-                Event::UserEvent(AppEvent::Rest) => {
-                    println!("Rest on main thread!");
-                    // mac_window::show_ripple(&window, 5.0, proxy.clone());
-                }
-                Event::UserEvent(AppEvent::Hide) => {
-                    mac_window::hide_ripple(&window);
-                }
-                _ => {}
+            Event::UserEvent(AppEvent::BlinkReplay) => {
+                println!("Blink replay on main thread!");
+                let duration = config.read().unwrap().blink_animation_duration_sec;
+                renderer.show_ripple(duration, proxy.clone(), true);
             }
-        });
-    }
+            Event::UserEvent(AppEvent::Rest) => {
+                println!("Rest on main thread!");
+                // renderer.show_ripple(5.0, proxy.clone(), false);
+            }
+            Event::UserEvent(AppEvent::Hide) => {
+                renderer.hide_ripple();
+            }
+            _ => {}
+        }
+    });
 }
