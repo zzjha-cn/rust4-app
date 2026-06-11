@@ -19,6 +19,18 @@ pub enum AppEvent {
     BlinkReplay,
 }
 
+fn load_icon() -> tray_icon::Icon {
+    let (icon_rgba, icon_width, icon_height) = {
+        let image = image::load_from_memory(include_bytes!("../../src-tauri/icons/32x32.png"))
+            .expect("Failed to open icon path")
+            .into_rgba8();
+        let (width, height) = image.dimensions();
+        let rgba = image.into_raw();
+        (rgba, width, height)
+    };
+    tray_icon::Icon::from_rgba(icon_rgba, icon_width, icon_height).expect("Failed to open icon")
+}
+
 fn main() {
     // Initialize tokio runtime for timers
     let rt = tokio::runtime::Runtime::new().unwrap();
@@ -42,6 +54,7 @@ fn main() {
     let _tray_icon = TrayIconBuilder::new()
         .with_menu(Box::new(tray_menu))
         .with_tooltip("Blink Reminder")
+        .with_icon(load_icon())
         .build()
         .unwrap();
 
@@ -84,12 +97,12 @@ fn main() {
 
         match event {
             Event::UserEvent(AppEvent::Blink) => {
-                println!("Blink on main thread!");
+                // println!("Blink on main thread!");
                 let duration = config.read().unwrap().blink_animation_duration_sec;
                 renderer.show_ripple(duration, proxy.clone(), false);
             }
             Event::UserEvent(AppEvent::BlinkReplay) => {
-                println!("Blink replay on main thread!");
+                // println!("Blink replay on main thread!");
                 let duration = config.read().unwrap().blink_animation_duration_sec;
                 renderer.show_ripple(duration, proxy.clone(), true);
             }
