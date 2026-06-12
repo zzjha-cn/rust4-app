@@ -72,32 +72,8 @@ fn is_within_work_hours(config: &AppConfig) -> bool {
 }
 
 fn current_hour() -> u8 {
-    use std::time::{SystemTime, UNIX_EPOCH};
-    let since_epoch = SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .unwrap_or_default();
-    let total_secs = since_epoch.as_secs();
-    let local_offset_secs = local_offset_seconds();
-    let local_secs = total_secs.saturating_add_signed(local_offset_secs as i64);
-    ((local_secs / 3600) % 24) as u8
-}
-
-fn local_offset_seconds() -> i64 {
-    #[cfg(target_os = "macos")]
-    {
-        extern "C" {
-            static timezone: i64;
-            fn tzset();
-        }
-        unsafe {
-            tzset();
-            -timezone
-        }
-    }
-    #[cfg(not(target_os = "macos"))]
-    {
-        0i64
-    }
+    use chrono::Timelike;
+    chrono::Local::now().hour() as u8
 }
 
 fn get_idle_time_secs() -> f64 {

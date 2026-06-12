@@ -23,6 +23,26 @@ objc2-quartz-core = { version = "0.2.2", features = ["CALayer", "CATransaction",
 objc2-core-image = { version = "0.2.2", features = ["CIFilter", "all"] }
 foreign-types-shared = "0.3.1"
 image = "0.25.10"
+chrono = "0.4.45"
 
 [target.'cfg(target_os = "windows")'.dependencies]
 windows = { version = "0.52", features = ["Win32_Foundation", "Win32_UI_WindowsAndMessaging", "Win32_Graphics_Direct2D", "Win32_Graphics_DirectComposition", "Win32_System_LibraryLoader"] }
+
+[package.metadata.bundle]
+name = "Blink Reminder"
+identifier = "com.sz3.blinkreminder"
+icon = ["../src-tauri/icons/128x128.png", "../src-tauri/icons/32x32.png"]
+version = "0.1.0"
+category = "Utility"
+short_description = "A lightweight eye-care reminder"
+long_description = "Blink Reminder helps you reduce eye strain by showing a subtle water ripple animation on your screen."
+osx_info_plist = """
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>LSUIElement</key>
+    <true/>
+</dict>
+</plist>
+"""

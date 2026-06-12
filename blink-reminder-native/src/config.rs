@@ -22,11 +22,11 @@ impl Default for AppConfig {
         Self {
             blink_interval_sec: 40,
             rest_interval_min: 40,
-            blink_animation_duration_sec: 1.8,
+            blink_animation_duration_sec: 1.2,
             rest_animation_duration_sec: 5.0,
             ripple_color: "#4FC3F7".to_string(),
             work_start_hour: 9,
-            work_end_hour: 18,
+            work_end_hour: 22,
             enable_work_hours: true,
             enable_sound: false,
             enable_blink: true,
