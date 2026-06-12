@@ -1,3 +1,4 @@
+use std::collections::VecDeque;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, RwLock};
 use std::time::Duration;
@@ -12,10 +13,10 @@ pub fn setup_timer(config: Arc<RwLock<AppConfig>>, state: Arc<TimerState>, on_bl
     let blink_state = state.clone();
     let blink_config = config.clone();
     tokio::spawn(async move {
-        let mut active_windows_count = 0;
+        let mut window_history: VecDeque<bool> = VecDeque::new();
         let mut current_window_active = false;
         let mut elapsed_secs_in_window = 0;
-        let mut elapsed_secs_in_cycle = 0;
+        let mut secs_since_last_blink = 0;
         let mut waiting_for_idle_to_blink = false;
 
         loop {
@@ -33,14 +34,16 @@ pub fn setup_timer(config: Arc<RwLock<AppConfig>>, state: Arc<TimerState>, on_bl
                         on_blink();
                     }
                     waiting_for_idle_to_blink = false;
-                    // Reset cycle after blink
-                    active_windows_count = 0;
+                    // Reset history and timer after a successful blink
+                    window_history.clear();
                     current_window_active = false;
                     elapsed_secs_in_window = 0;
-                    elapsed_secs_in_cycle = 0;
+                    secs_since_last_blink = 0;
                 }
                 continue;
             }
+
+            secs_since_last_blink += 1;
 
             // Check activity in the current second
             if get_idle_time_secs() < 1.0 {
@@ -48,29 +51,32 @@ pub fn setup_timer(config: Arc<RwLock<AppConfig>>, state: Arc<TimerState>, on_bl
             }
 
             elapsed_secs_in_window += 1;
-            elapsed_secs_in_cycle += 1;
 
-            // End of a time window
+            // End of a time window (e.g., 3 seconds)
             if elapsed_secs_in_window >= cfg.time_window_sec {
-                if current_window_active {
-                    active_windows_count += 1;
+                // Push the result of this window into the history
+                window_history.push_back(current_window_active);
+
+                // Calculate how many windows make up a full check cycle
+                let max_windows_in_cycle = (cfg.blink_interval_sec / cfg.time_window_sec) as usize;
+
+                // Maintain the sliding window size
+                while window_history.len() > max_windows_in_cycle {
+                    window_history.pop_front();
                 }
+
+                // Check if we have enough active windows in the current sliding history
+                let active_windows_count = window_history.iter().filter(|&&active| active).count() as u64;
+
+                // Only trigger if we've waited at least `blink_interval_sec` since the last blink
+                // AND the user has been focused enough in the recent sliding window
+                if secs_since_last_blink >= cfg.blink_interval_sec && active_windows_count >= cfg.active_window_threshold {
+                    waiting_for_idle_to_blink = true;
+                }
+
+                // Reset for the next small window
                 elapsed_secs_in_window = 0;
                 current_window_active = false;
-            }
-
-            // End of a check cycle
-            if elapsed_secs_in_cycle >= cfg.blink_interval_sec {
-                if active_windows_count >= cfg.active_window_threshold {
-                    // User was focused enough, trigger blink (wait for idle first)
-                    waiting_for_idle_to_blink = true;
-                } else {
-                    // User was not focused enough, skip blink and reset cycle
-                    active_windows_count = 0;
-                    current_window_active = false;
-                    elapsed_secs_in_window = 0;
-                    elapsed_secs_in_cycle = 0;
-                }
             }
         }
     });
