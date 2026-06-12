@@ -5,6 +5,8 @@ use std::path::PathBuf;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AppConfig {
     pub blink_interval_sec: u64,
+    pub time_window_sec: u64,
+    pub active_window_threshold: u64,
     pub rest_interval_min: u64,
     pub blink_animation_duration_sec: f64,
     pub rest_animation_duration_sec: f64,
@@ -21,6 +23,8 @@ impl Default for AppConfig {
     fn default() -> Self {
         Self {
             blink_interval_sec: 40,
+            time_window_sec: 3,
+            active_window_threshold: 10,
             rest_interval_min: 40,
             blink_animation_duration_sec: 1.2,
             rest_animation_duration_sec: 5.0,

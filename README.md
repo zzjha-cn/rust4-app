@@ -78,9 +78,10 @@ npm run tauri build
 无论采用哪种方案，Blink Reminder 都具备以下核心特性：
 
 - **无感提醒**：动画直接作用于当前屏幕内容，不抢占键盘焦点。
-- **智能防打扰 (输入延迟)**：底层监听系统级空闲状态。当到达提醒时间时，如果用户正在活跃打字或操作鼠标（空闲时间 < 1秒），动画会自动推迟，直到用户停下输入超过 1 秒后才会温柔出现，绝不打断工作流。
-- **动态配置**：支持通过托盘菜单实时开启/关闭提醒，配置修改即时生效，无需重启应用。
-- **工作时间控制**：可配置仅在设定的工作时间段内（如 9:00 - 18:00）触发提醒。
+- **智能专注模式**：彻底摒弃死板的定时提醒。将检查周期划分为多个时间窗口，只有当用户在周期内的活跃窗口数量达到设定阈值（即真正处于高强度专注状态）时，才会触发提醒。如果用户在发呆或看视频，则自动跳过提醒。
+- **智能防打扰 (输入延迟)**：底层监听系统级空闲状态。当判定需要提醒时，如果用户正在活跃打字或操作鼠标（空闲时间 < 1秒），动画会自动推迟，直到用户停下输入超过 1 秒后才会温柔出现，绝不打断工作流。
+- **动态配置与丰富托盘**：支持通过托盘菜单实时开启/关闭提醒、快速切换提醒间隔、测试动画效果，配置修改即时生效，无需重启应用。
+- **工作时间控制**：可配置仅在设定的工作时间段内（如 9:00 - 22:00）触发提醒。
 
 ## 配置文件
 
@@ -88,13 +89,15 @@ npm run tauri build
 
 ```json
 {
-  "blink_interval_sec": 20,
-  "rest_interval_min": 30,
-  "blink_animation_duration_sec": 1.5,
+  "blink_interval_sec": 40,
+  "time_window_sec": 3,
+  "active_window_threshold": 10,
+  "rest_interval_min": 40,
+  "blink_animation_duration_sec": 1.2,
   "rest_animation_duration_sec": 5.0,
   "ripple_color": "#4FC3F7",
   "work_start_hour": 9,
-  "work_end_hour": 18,
+  "work_end_hour": 22,
   "enable_work_hours": true,
   "enable_sound": false,
   "enable_blink": true,

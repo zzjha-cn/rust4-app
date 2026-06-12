@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-rm ~/.blink-reminder/config.json
+# rm ~/.blink-reminder/config.json
 
 echo "Building release binary..."
 CARGO_TARGET_DIR=./target

@@ -7,7 +7,7 @@ use std::sync::{Arc, RwLock};
 use tao::event::Event;
 use tao::event_loop::{ControlFlow, EventLoopBuilder};
 use tray_icon::{
-    menu::{Menu, MenuEvent, MenuItem},
+    menu::{Menu, MenuEvent, MenuItem, PredefinedMenuItem, Submenu},
     TrayIconBuilder,
 };
 
@@ -46,10 +46,32 @@ fn main() {
 
     // Setup Tray
     let tray_menu = Menu::new();
+
     let toggle_blink_item = MenuItem::new("👁 开启/关闭眨眼提醒", true, None);
     let toggle_item = MenuItem::new("⏸ 暂停 20 分钟", true, None);
+
+    let test_blink_item = MenuItem::new("▶️ 测试眨眼动画", true, None);
+    let test_rest_item = MenuItem::new("▶️ 测试休息动画", true, None);
+
+    let interval_menu = Submenu::new("⏱ 眨眼间隔", true);
+    let interval_20_item = MenuItem::new("20 秒", true, None);
+    let interval_40_item = MenuItem::new("40 秒", true, None);
+    let interval_60_item = MenuItem::new("60 秒", true, None);
+    let _ = interval_menu.append_items(&[&interval_20_item, &interval_40_item, &interval_60_item]);
+
     let quit_item = MenuItem::new("❌ 退出", true, None);
-    let _ = tray_menu.append_items(&[&toggle_blink_item, &toggle_item, &quit_item]);
+
+    let _ = tray_menu.append_items(&[
+        &toggle_blink_item,
+        &toggle_item,
+        &PredefinedMenuItem::separator(),
+        &test_blink_item,
+        &test_rest_item,
+        &PredefinedMenuItem::separator(),
+        &interval_menu,
+        &PredefinedMenuItem::separator(),
+        &quit_item,
+    ]);
 
     let _tray_icon = TrayIconBuilder::new()
         .with_menu(Box::new(tray_menu))
@@ -92,6 +114,22 @@ fn main() {
             } else if menu_event.id == toggle_item.id() {
                 let current = timer_state.is_paused.load(Ordering::Relaxed);
                 timer_state.is_paused.store(!current, Ordering::Relaxed);
+            } else if menu_event.id == test_blink_item.id() {
+                let _ = proxy.send_event(AppEvent::Blink);
+            } else if menu_event.id == test_rest_item.id() {
+                let _ = proxy.send_event(AppEvent::Rest);
+            } else if menu_event.id == interval_20_item.id() {
+                let mut cfg = config.write().unwrap();
+                cfg.blink_interval_sec = 20;
+                let _ = cfg.save();
+            } else if menu_event.id == interval_40_item.id() {
+                let mut cfg = config.write().unwrap();
+                cfg.blink_interval_sec = 40;
+                let _ = cfg.save();
+            } else if menu_event.id == interval_60_item.id() {
+                let mut cfg = config.write().unwrap();
+                cfg.blink_interval_sec = 60;
+                let _ = cfg.save();
             }
         }
 
