@@ -53,11 +53,31 @@ fn main() {
     let test_blink_item = MenuItem::new("▶️ 测试眨眼动画", true, None);
     let test_rest_item = MenuItem::new("▶️ 测试休息动画", true, None);
 
-    let interval_menu = Submenu::new("⏱ 眨眼间隔", true);
+    let interval_menu = Submenu::new("⏱ 眨眼检查周期", true);
     let interval_20_item = MenuItem::new("20 秒", true, None);
     let interval_40_item = MenuItem::new("40 秒", true, None);
     let interval_60_item = MenuItem::new("60 秒", true, None);
     let _ = interval_menu.append_items(&[&interval_20_item, &interval_40_item, &interval_60_item]);
+
+    let window_menu = Submenu::new("⏱ 判定窗口大小", true);
+    let window_1_item = MenuItem::new("1 秒", true, None);
+    let window_3_item = MenuItem::new("3 秒", true, None);
+    let window_5_item = MenuItem::new("5 秒", true, None);
+    let _ = window_menu.append_items(&[&window_1_item, &window_3_item, &window_5_item]);
+
+    let threshold_menu = Submenu::new("🎯 专注活跃阈值", true);
+    let threshold_5_item = MenuItem::new("5 次", true, None);
+    let threshold_10_item = MenuItem::new("10 次", true, None);
+    let threshold_15_item = MenuItem::new("15 次", true, None);
+    let _ =
+        threshold_menu.append_items(&[&threshold_5_item, &threshold_10_item, &threshold_15_item]);
+
+    let rest_menu = Submenu::new("☕ 休息提醒间隔", true);
+    let rest_20_item = MenuItem::new("20 分钟", true, None);
+    let rest_30_item = MenuItem::new("30 分钟", true, None);
+    let rest_40_item = MenuItem::new("40 分钟", true, None);
+    let rest_60_item = MenuItem::new("60 分钟", true, None);
+    let _ = rest_menu.append_items(&[&rest_20_item, &rest_30_item, &rest_40_item, &rest_60_item]);
 
     let quit_item = MenuItem::new("❌ 退出", true, None);
 
@@ -69,6 +89,9 @@ fn main() {
         &test_rest_item,
         &PredefinedMenuItem::separator(),
         &interval_menu,
+        &window_menu,
+        &threshold_menu,
+        &rest_menu,
         &PredefinedMenuItem::separator(),
         &quit_item,
     ]);
@@ -129,6 +152,46 @@ fn main() {
             } else if menu_event.id == interval_60_item.id() {
                 let mut cfg = config.write().unwrap();
                 cfg.blink_interval_sec = 60;
+                let _ = cfg.save();
+            } else if menu_event.id == window_1_item.id() {
+                let mut cfg = config.write().unwrap();
+                cfg.time_window_sec = 1;
+                let _ = cfg.save();
+            } else if menu_event.id == window_3_item.id() {
+                let mut cfg = config.write().unwrap();
+                cfg.time_window_sec = 3;
+                let _ = cfg.save();
+            } else if menu_event.id == window_5_item.id() {
+                let mut cfg = config.write().unwrap();
+                cfg.time_window_sec = 5;
+                let _ = cfg.save();
+            } else if menu_event.id == threshold_5_item.id() {
+                let mut cfg = config.write().unwrap();
+                cfg.active_window_threshold = 5;
+                let _ = cfg.save();
+            } else if menu_event.id == threshold_10_item.id() {
+                let mut cfg = config.write().unwrap();
+                cfg.active_window_threshold = 10;
+                let _ = cfg.save();
+            } else if menu_event.id == threshold_15_item.id() {
+                let mut cfg = config.write().unwrap();
+                cfg.active_window_threshold = 15;
+                let _ = cfg.save();
+            } else if menu_event.id == rest_20_item.id() {
+                let mut cfg = config.write().unwrap();
+                cfg.rest_interval_min = 20;
+                let _ = cfg.save();
+            } else if menu_event.id == rest_30_item.id() {
+                let mut cfg = config.write().unwrap();
+                cfg.rest_interval_min = 30;
+                let _ = cfg.save();
+            } else if menu_event.id == rest_40_item.id() {
+                let mut cfg = config.write().unwrap();
+                cfg.rest_interval_min = 40;
+                let _ = cfg.save();
+            } else if menu_event.id == rest_60_item.id() {
+                let mut cfg = config.write().unwrap();
+                cfg.rest_interval_min = 60;
                 let _ = cfg.save();
             }
         }
