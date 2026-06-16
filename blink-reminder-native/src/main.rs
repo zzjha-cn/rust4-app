@@ -40,7 +40,32 @@ fn prompt_input(prompt: &str, default_val: &str) -> Option<String> {
 
 #[cfg(not(target_os = "macos"))]
 fn prompt_input(prompt: &str, default_val: &str) -> Option<String> {
-    // Windows implementation can be added later
+    // For Windows, we can use a simple VBScript to show an input box
+    #[cfg(target_os = "windows")]
+    {
+        let script = format!(
+            "WScript.Echo InputBox(\"{}\", \"Blink Reminder\", \"{}\")",
+            prompt, default_val
+        );
+
+        let temp_dir = std::env::temp_dir();
+        let script_path = temp_dir.join("blink_prompt.vbs");
+        if std::fs::write(&script_path, script).is_ok() {
+            if let Ok(output) = std::process::Command::new("cscript")
+                .arg("//nologo")
+                .arg(&script_path)
+                .output()
+            {
+                let _ = std::fs::remove_file(script_path);
+                if output.status.success() {
+                    let result = String::from_utf8_lossy(&output.stdout).trim().to_string();
+                    if !result.is_empty() {
+                        return Some(result);
+                    }
+                }
+            }
+        }
+    }
     None
 }
 

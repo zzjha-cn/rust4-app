@@ -2,6 +2,7 @@
 name = "blink-reminder-native"
 version = "0.1.0"
 edition = "2021"
+default-run = "blink-reminder-native"
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
@@ -10,23 +11,51 @@ tokio = { version = "1.0", features = ["full"] }
 tray-icon = "0.14"
 tao = "0.28"
 muda = "0.13"
+image = "0.25.10"
+chrono = "0.4.45"
+
+[target.'cfg(target_os = "macos")'.dependencies]
 objc2 = "0.5"
-objc2-app-kit = { version = "0.2.2", features = ["NSApplication", "NSWindow", "NSView", "NSColor", "NSScreen", "NSGraphicsContext", "NSGraphics", "all", "NSVisualEffectView"] }
+objc2-app-kit = { version = "0.2.2", features = [
+    "NSApplication",
+    "NSWindow",
+    "NSView",
+    "NSColor",
+    "NSScreen",
+    "NSGraphicsContext",
+    "NSGraphics",
+    "all",
+    "NSVisualEffectView",
+] }
 objc2-foundation = { version = "0.2", features = [
     "NSString",
     "NSGeometry",
     "NSArray",
 ] }
-core-graphics = "0.23"
 core-foundation = "0.9"
-objc2-quartz-core = { version = "0.2.2", features = ["CALayer", "CATransaction", "CAAnimation", "CAMediaTimingFunction", "all"] }
+core-graphics = "0.23"
+objc2-quartz-core = { version = "0.2.2", features = [
+    "CALayer",
+    "CATransaction",
+    "CAAnimation",
+    "CAMediaTimingFunction",
+    "all",
+] }
 objc2-core-image = { version = "0.2.2", features = ["CIFilter", "all"] }
 foreign-types-shared = "0.3.1"
-image = "0.25.10"
-chrono = "0.4.45"
 
 [target.'cfg(target_os = "windows")'.dependencies]
-windows = { version = "0.52", features = ["Win32_Foundation", "Win32_UI_WindowsAndMessaging", "Win32_Graphics_Direct2D", "Win32_Graphics_DirectComposition", "Win32_System_LibraryLoader"] }
+windows = { version = "0.52", features = [
+    "Win32_Foundation",
+    "Win32_UI_WindowsAndMessaging",
+    "Win32_Graphics_Direct2D",
+    "Win32_Graphics_Direct2D_Common",
+    "Win32_Graphics_DirectComposition",
+    "Win32_Graphics_Dxgi_Common",
+    "Win32_System_LibraryLoader",
+    "Win32_Graphics_Gdi",
+    "Foundation_Numerics",
+] }
 
 [package.metadata.bundle]
 name = "Blink Reminder"
